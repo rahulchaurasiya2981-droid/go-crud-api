@@ -10,7 +10,9 @@ import (
 	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/database"
 	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/health"
 	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/logger"
-	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user"
+	userhandler "github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user/handler"
+	userrepository "github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user/repository"
+	userservice "github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user/service"
 )
 
 func main() {
@@ -65,9 +67,9 @@ func main() {
 	defer db.Close()
 
 	healthHandler := health.NewHandler(db)
-	userRepository := user.NewRepository(db)
-	userService := user.NewService(userRepository)
-	userHandler := user.NewHandler(userService)
+	userRepository := userrepository.New(db)
+	userService := userservice.New(userRepository)
+	userHandler := userhandler.New(userService)
 
 	// =========================================================================
 	// STEP 4: Create HTTP Router & Register Routes with respective handlers

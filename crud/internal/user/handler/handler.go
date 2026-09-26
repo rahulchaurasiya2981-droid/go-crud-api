@@ -1,25 +1,33 @@
-package user
+package handler
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/httprequest"
 	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/httpresponse"
+	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user/dto"
 )
 
-type Handler struct {
-	service Service
+type userService interface {
+	GetUsers(ctx context.Context) ([]dto.UserResponse, error)
+	CreateUser(ctx context.Context, request dto.CreateUserRequest) (dto.UserResponse, error)
 }
 
-func NewHandler(service Service) *Handler {
+type Handler struct {
+	service userService
+}
+
+func New(service userService) *Handler {
 	return &Handler{service: service}
 }
 
 const (
 	maxRequestBodySizeMB = 1
 	maxRequestBodySize   = maxRequestBodySizeMB * 1_000_000
+	// maxRequestBodySize limits incoming request bodies to 1 MB (1,000,000 bytes).
 )
 
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -47,10 +55,22 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		slog.Info("API handler completed", "action", "API_HANDLER_END", "method", r.Method, "path", r.URL.Path, "duration_ms", time.Since(start).Milliseconds())
 	}()
 
-	var request CreateUserRequest
+	// 1. Parse + validate JSON structure
+	var request dto.CreateUserRequest
 	isJSONValid := httprequest.ParseAndValidateJSON(w, r, &request, maxRequestBodySize)
 	if !isJSONValid {
-		httpresponse.Error(w, http.StatusNotFound, "INVALID_JSON", "Invalid JSON request")
+		httpresponse.Error(w, http.StatusBadRequest, "INVALID_JSON", "Invalid JSON request")
+		return
+	}
+
+	// 2. Validate business/input fields
+	if err := request.Validate(); err != nil {
+		httpresponse.Error(
+			w,
+			http.StatusBadRequest,
+			"INVALID_REQUEST",
+			err.Error(),
+		)
 		return
 	}
 

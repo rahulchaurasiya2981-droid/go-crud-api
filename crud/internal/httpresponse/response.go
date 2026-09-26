@@ -8,7 +8,7 @@ import (
 
 type httpResponseSuccess struct {
 	Success bool   `json:"success"`
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"`
 	Data    any    `json:"data,omitempty"`
 }
 
@@ -44,7 +44,7 @@ func Success(
 ) {
 	response := httpResponseSuccess{
 		Success: true,
-		Message: message,
+		// Message: message,
 		Data:    data,
 	}
 

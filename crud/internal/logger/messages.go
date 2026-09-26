@@ -35,6 +35,13 @@ const (
 	MsgHTTPResponse     = "HTTP response sent"
 	MsgHTTPRequestError = "HTTP request failed"
 
+	// HTTP Request Body JSON Validation
+	MsgHTTPRequestJSONValidationStart = "JSON request validation started"
+	MsgHTTPRequestBodyTooLarge        = "JSON request body exceeds maximum size"
+	MsgHTTPRequestJSONDecodeError     = "Failed to decode JSON request body"
+	MsgHTTPRequestTrailingData        = "JSON request body contains trailing data"
+	MsgHTTPRequestJSONValidationEnd   = "JSON request validation End"
+
 	// CRUD messages.
 	MsgCRUDCreate        = "Creating resource"
 	MsgCRUDRead          = "Reading resource"

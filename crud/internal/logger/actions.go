@@ -35,6 +35,13 @@ const (
 	ActionHTTPResponse     = "HTTP_RESPONSE"
 	ActionHTTPRequestError = "HTTP_REQUEST_ERROR"
 
+	// HTTP Request Body JSON Validation
+	ActionHTTPRequestJSONValidationStart = "HTTP_REQUEST_JSON_VALIDATION_START"
+	ActionHTTPRequestBodyTooLarge        = "HTTP_REQUEST_BODY_TOO_LARGE"
+	ActionHTTPRequestJSONDecodeError     = "HTTP_REQUEST_JSON_DECODE_ERROR"
+	ActionHTTPRequestTrailingData        = "HTTP_REQUEST_TRAILING_DATA"
+	ActionHTTPRequestJSONValidationEnd   = "HTTP_REQUEST_JSON_VALIDATION_END"
+
 	// CRUD actions.
 	ActionCRUDCreate        = "CRUD_CREATE"
 	ActionCRUDRead          = "CRUD_READ"

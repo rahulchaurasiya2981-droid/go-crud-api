@@ -1,25 +1,27 @@
-package user
+package repository
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
+
+	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user/entity"
 )
 
 type Repository interface {
-	GetUsers(ctx context.Context) ([]User, error)
-	CreateUser(ctx context.Context, request CreateUserRequest) (User, error)
+	GetUsers(ctx context.Context) ([]entity.User, error)
+	CreateUser(ctx context.Context, user entity.User) (entity.User, error)
 }
 
 type repository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) Repository {
+func New(db *sql.DB) Repository {
 	return &repository{db: db}
 }
 
-func (r *repository) GetUsers(ctx context.Context) ([]User, error) {
+func (r *repository) GetUsers(ctx context.Context) ([]entity.User, error) {
 	const query = `
 		SELECT id, name, email, age, created_at, updated_at
 		FROM users
@@ -33,9 +35,9 @@ func (r *repository) GetUsers(ctx context.Context) ([]User, error) {
 	}
 	defer rows.Close()
 
-	users := make([]User, 0, 100)
+	users := make([]entity.User, 0, 100)
 	for rows.Next() {
-		var current User
+		var current entity.User
 		if err := rows.Scan(
 			&current.ID,
 			&current.Name,
@@ -56,15 +58,15 @@ func (r *repository) GetUsers(ctx context.Context) ([]User, error) {
 	return users, nil
 }
 
-func (r *repository) CreateUser(ctx context.Context, request CreateUserRequest) (User, error) {
+func (r *repository) CreateUser(ctx context.Context, user entity.User) (entity.User, error) {
 	const query = `
 		INSERT INTO users (name, email, age)
-		VALUES ($1, $2, $3)		
+		VALUES ($1, $2, $3)
 		RETURNING id, name, email, age, created_at, updated_at;
 	`
 
-	var created User
-	if err := r.db.QueryRowContext(ctx, query, request.Name, request.Email, request.Age).Scan(
+	var created entity.User
+	if err := r.db.QueryRowContext(ctx, query, user.Name, user.Email, user.Age).Scan(
 		&created.ID,
 		&created.Name,
 		&created.Email,
@@ -72,7 +74,7 @@ func (r *repository) CreateUser(ctx context.Context, request CreateUserRequest) 
 		&created.CreatedAt,
 		&created.UpdatedAt,
 	); err != nil {
-		return User{}, fmt.Errorf("create user: %w", err)
+		return entity.User{}, fmt.Errorf("create user: %w", err)
 	}
 
 	return created, nil

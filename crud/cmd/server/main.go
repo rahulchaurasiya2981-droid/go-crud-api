@@ -79,8 +79,8 @@ func main() {
 	mux.HandleFunc("GET /healthz/ready", healthHandler.Readiness)
 	mux.HandleFunc("GET /users", userHandler.GetUsers)
 	mux.HandleFunc("POST /users", userHandler.CreateUser)
-	// mux.HandleFunc("DELETE /users/{id}", userHandler.DeleteUser)
-	// mux.HandleFunc("PUT /users/{id}", userHandler.UpdateUser)
+	mux.HandleFunc("DELETE /users/{id}", userHandler.DeleteUser)
+	mux.HandleFunc("PUT /users/{id}", userHandler.UpdateUser)
 
 	// =========================================================
 	// STEP 5: Create HTTP Server

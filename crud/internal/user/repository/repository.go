@@ -3,14 +3,23 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/rahulchaurasiya2981-droid/go-crud-api/internal/user/entity"
+)
+
+var (
+	ErrDuplicateEmail = errors.New("email already exists")
+	ErrUserNotFound   = errors.New("user not found")
 )
 
 type Repository interface {
 	GetUsers(ctx context.Context) ([]entity.User, error)
 	CreateUser(ctx context.Context, user entity.User) (entity.User, error)
+	DeleteUser(ctx context.Context, id int64) (entity.User, error)
+	UpdateUser(ctx context.Context, id int64, user entity.UserUpdate) (entity.User, error)
 }
 
 type repository struct {
@@ -74,8 +83,74 @@ func (r *repository) CreateUser(ctx context.Context, user entity.User) (entity.U
 		&created.CreatedAt,
 		&created.UpdatedAt,
 	); err != nil {
+		var pgErr *pgconn.PgError
+
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return entity.User{}, ErrDuplicateEmail
+		}
+
 		return entity.User{}, fmt.Errorf("create user: %w", err)
 	}
 
 	return created, nil
+}
+
+func (r *repository) DeleteUser(ctx context.Context, id int64) (entity.User, error) {
+	const query = `
+		DELETE FROM users
+		WHERE id = $1
+		RETURNING id, name, email, age, created_at, updated_at;
+	`
+
+	var deleted entity.User
+	if err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&deleted.ID,
+		&deleted.Name,
+		&deleted.Email,
+		&deleted.Age,
+		&deleted.CreatedAt,
+		&deleted.UpdatedAt,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entity.User{}, ErrUserNotFound
+		}
+		return entity.User{}, fmt.Errorf("delete user: %w", err)
+	}
+
+	return deleted, nil
+}
+
+func (r *repository) UpdateUser(ctx context.Context, id int64, user entity.UserUpdate) (entity.User, error) {
+	const query = `
+		UPDATE users
+		SET name = COALESCE($2, name),
+		    email = COALESCE($3, email),
+		    age = COALESCE($4, age),
+		    updated_at = NOW()
+		WHERE id = $1
+		RETURNING id, name, email, age, created_at, updated_at;
+	`
+
+	var updated entity.User
+	if err := r.db.QueryRowContext(ctx, query, id, user.Name, user.Email, user.Age).Scan(
+		&updated.ID,
+		&updated.Name,
+		&updated.Email,
+		&updated.Age,
+		&updated.CreatedAt,
+		&updated.UpdatedAt,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return entity.User{}, ErrUserNotFound
+		}
+
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return entity.User{}, ErrDuplicateEmail
+		}
+
+		return entity.User{}, fmt.Errorf("update user: %w", err)
+	}
+
+	return updated, nil
 }

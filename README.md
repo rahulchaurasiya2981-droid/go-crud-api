@@ -17,11 +17,9 @@ A production-ready RESTful CRUD API built with **Go** and **PostgreSQL** for man
 
 ## 🎬 Demo
 
-![API Demo](docs/demo.gif)
+Check out the full walkthrough of the project, package structure breakdown, database migrations, and live API endpoints demonstration on YouTube:
 
-> 💡 *A video walkthrough and Postman collection will be added soon!*
-
----
+> 📺 **Watch video on YouTube**: [Go CRUD API with PostgreSQL | Complete Backend Project Demo](https://www.youtube.com/watch?v=Lip1fP1kHDE)
 
 ## ✨ Features
 

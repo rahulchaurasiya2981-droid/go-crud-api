@@ -1,317 +1,79 @@
-# Go CRUD API
+<div align="center">
 
-A production-style RESTful CRUD API built with Go and PostgreSQL for managing users. The project follows a package-by-feature architecture with separate DTO, entity, handler, service, and repository layers, along with centralized configuration, database, logging, request validation, and HTTP response handling.
+# 🚀 Go CRUD API
 
-![Go CRUD API Demo](./docs/demo.gif)
+A production-ready RESTful CRUD API built with **Go** and **PostgreSQL** for managing users. Built following clean architecture principles, package-by-feature organization, and idiomatic Go design patterns.
 
-## Features
+[![Go Version](https://img.shields.io/badge/Go-1.27%2B-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18%2B-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Architecture](https://img.shields.io/badge/Architecture-Package--by--Feature-orange?style=for-the-badge)](#-architecture)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-* RESTful CRUD operations for users
-* Create, read, update, and delete users
-* PostgreSQL database integration
-* Package-by-feature architecture
-* DTO and entity separation
-* Request body validation
-* JSON request size limitation
-* Unknown JSON field validation
-* Trailing JSON data validation
-* Structured logging with `log/slog`
-* Database migrations
-* Context-aware database queries
-* Graceful server shutdown
-* Centralized HTTP response handling
-* Environment-based configuration
-* Taskfile for development commands
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Available Tasks](#-available-tasks) • [API Endpoints](#-api-endpoints) • [Project Structure](#-project-structure) • [Architecture](#-architecture)
 
-## Tech Stack
+</div>
 
-* **Go 1.27+**
-* **net/http**
-* **PostgreSQL 18+**
-* **database/sql**
-* **pgx v5**
-* **golang-migrate**
-* **godotenv**
-* **log/slog**
-* **Task**
+---
 
-## Requirements
+## 🎬 Demo
 
-Before running the project, make sure you have:
+![API Demo](docs/demo.gif)
 
-* Go 1.27+
-* PostgreSQL 18+
-* Git
-* Task
-* Postman (optional, for API testing)
+> 💡 *A video walkthrough and Postman collection will be added soon!*
 
-## How to Use
+---
 
-### 1. Clone the Repository
+## ✨ Features
+
+- ⚡ **RESTful API**: Clean API endpoints for user CRUD operations (Create, Read, Update, Delete).
+- 📦 **Package-by-Feature Architecture**: High modularity by organizing code around business domains.
+- 🔀 **DTO & Entity Separation**: Strict boundary between API request/response contracts and internal models.
+- 🛡️ **Robust HTTP Request Parsing & Validation**:
+  - Content-Length & JSON payload size limits.
+  - Rejection of unknown JSON fields.
+  - Trailing JSON data detection.
+  - DTO field-level validation.
+- 📜 **Structured Logging**: Centralized logging powered by standard library `log/slog`.
+- 🗄️ **Database Migrations**: Version-controlled SQL migrations using `golang-migrate`.
+- ⚡ **Context-Aware Database Queries**: Timeout and cancellation propagation down to `pgx v5`.
+- 🛑 **Graceful Server Shutdown**: Handles OS termination signals without dropping active HTTP requests.
+- 🌐 **Standardized Responses**: Centralized HTTP success and error response wrappers.
+- ⚙️ **Environment Configuration**: Flexible env loading with `godotenv`.
+- 🛠️ **Automated Task Runner**: One-step migration and app start via `Taskfile`.
+
+---
+
+## 🛠️ Tech Stack
+
+| Domain | Technology / Library | Description |
+| :--- | :--- | :--- |
+| **Language** | [Go 1.27+](https://golang.org/) | Core language |
+| **HTTP Router** | Standard Library (`net/http`) | Lightweight HTTP server implementation |
+| **Database** | [PostgreSQL 18+](https://www.postgresql.org/) | Relational database storage |
+| **DB Driver / Pool** | [`database/sql`](https://pkg.go.dev/database/sql) & [`pgx v5`](https://github.com/jackc/pgx) | Native Go PostgreSQL driver & pooling |
+| **Migrations** | [`golang-migrate`](https://github.com/golang-migrate/migrate) | Database schema versioning |
+| **Logging** | [`log/slog`](https://pkg.go.dev/log/slog) | Native structured logging |
+| **Environment** | [`godotenv`](https://github.com/joho/godotenv) | `.env` file loader |
+| **Task Runner** | [`Task`](https://taskfile.dev/) | Task automation runner |
+
+---
+
+## 🚀 Getting Started
+
+### 📋 Prerequisites
+
+Ensure you have the following installed on your local environment:
+
+- 🟢 **Go**: `v1.27` or higher
+- 🐘 **PostgreSQL**: `v18` or higher
+- 🐙 **Git**
+- 🛠️ **Taskfile** *(optional, but recommended)*
+- 🟧 **Postman** *(optional, for API testing)*
+
+---
+
+### 📥 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone [https://github.com/your-username/go-crud-api.git](https://github.com/your-username/go-crud-api.git)
 cd go-crud-api
-```
-
-### 2. Configure Environment Variables
-
-Create a `.env` file using `.env.example` as a reference.
-
-```bash
-cp .env.example .env
-```
-
-Update the values according to your local PostgreSQL configuration.
-
-> **Note:** Never commit your `.env` file. The `.env.example` file is provided as a configuration reference.
-
-### 3. Install Dependencies
-
-Using Task:
-
-```bash
-task tidy
-```
-
-Or using Go:
-
-```bash
-go mod download
-```
-
-### 4. Run Database Migrations
-
-Apply the database migrations:
-
-```bash
-task migrate-up
-```
-
-### 5. Start the Server
-
-```bash
-task run
-```
-
-The API will be available at:
-
-```text
-http://localhost:8080
-```
-
-## Available Tasks
-
-| Command                 | Description                    |
-| ----------------------- | ------------------------------ |
-| `task run`              | Start the application          |
-| `task build`            | Build the application          |
-| `task test`             | Run tests                      |
-| `task fmt`              | Format Go code                 |
-| `task vet`              | Run Go vet                     |
-| `task tidy`             | Update and clean dependencies  |
-| `task check`            | Run project checks             |
-| `task migrate-up`       | Apply database migrations      |
-| `task migrate-down`     | Roll back the latest migration |
-| `task migrate-down-all` | Roll back all migrations       |
-
-## API Endpoints
-
-| Method   | Endpoint      | Description       |
-| -------- | ------------- | ----------------- |
-| `GET`    | `/health`     | Check API health  |
-| `GET`    | `/users`      | Get all users     |
-| `GET`    | `/users/{id}` | Get a user by ID  |
-| `POST`   | `/users`      | Create a new user |
-| `PUT`    | `/users/{id}` | Update a user     |
-| `DELETE` | `/users/{id}` | Delete a user     |
-
-## Example Request
-
-### Create User
-
-```http
-POST /users
-Content-Type: application/json
-```
-
-```json
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "age": 25
-}
-```
-
-## Project Structure
-
-```text
-go-crud-api/
-│
-├── cmd/
-│   └── server/
-│       └── main.go
-│
-├── internal/
-│   │
-│   ├── user/
-│   │   ├── dto/
-│   │   │   └── user_dto.go
-│   │   │
-│   │   ├── entity/
-│   │   │   └── user.go
-│   │   │
-│   │   ├── handler/
-│   │   │   └── user_handler.go
-│   │   │
-│   │   ├── service/
-│   │   │   └── user_service.go
-│   │   │
-│   │   └── repository/
-│   │       └── user_repository.go
-│   │
-│   ├── config/
-│   │   └── ...
-│   │
-│   ├── database/
-│   │   └── ...
-│   │
-│   ├── logger/
-│   │   └── ...
-│   │
-│   ├── httprequest/
-│   │   └── ...
-│   │
-│   └── httpresponse/
-│       └── ...
-│
-├── migrations/
-│
-├── docs/
-│   └── demo.gif
-│
-├── .env.example
-├── .gitignore
-├── Taskfile.yml
-├── go.mod
-├── go.sum
-└── README.md
-```
-
-## Architecture
-
-The project follows a **package-by-feature** architecture.
-
-```text
-                         HTTP Request
-                              │
-                              ▼
-                       ┌─────────────┐
-                       │   Handler   │
-                       └──────┬──────┘
-                              │
-                              ▼
-                       ┌─────────────┐
-                       │   Service   │
-                       └──────┬──────┘
-                              │
-                              ▼
-                       ┌─────────────┐
-                       │ Repository  │
-                       └──────┬──────┘
-                              │
-                              ▼
-                         PostgreSQL
-```
-
-### User Module
-
-The `user` package contains everything related to user functionality.
-
-* **DTO** — Defines API request and response data structures.
-* **Entity** — Represents the core user data model.
-* **Handler** — Handles HTTP requests, validation, and responses.
-* **Service** — Contains application and business logic.
-* **Repository** — Handles database operations.
-
-### Shared Packages
-
-* **config** — Loads and manages application configuration.
-* **database** — Handles database connection and configuration.
-* **logger** — Provides centralized structured logging.
-* **httprequest** — Provides common HTTP request parsing and validation.
-* **httpresponse** — Provides standardized HTTP success and error responses.
-
-### Server
-
-The `cmd/server` package contains the application entry point.
-
-It is responsible for initializing configuration, database connections, dependencies, routes, and the HTTP server.
-
-## Database
-
-The application uses PostgreSQL for persistent data storage.
-
-Database schema changes are managed using **golang-migrate**.
-
-### Apply Migrations
-
-```bash
-task migrate-up
-```
-
-### Roll Back Latest Migration
-
-```bash
-task migrate-down
-```
-
-### Roll Back All Migrations
-
-```bash
-task migrate-down-all
-```
-
-## Environment Variables
-
-The project provides an example environment configuration:
-
-```text
-.env.example
-```
-
-Create your local environment file:
-
-```text
-.env
-```
-
-Update the values according to your local environment.
-
-> **Important:** Do not commit `.env` to the repository.
-
-## Testing
-
-Run the test suite:
-
-```bash
-task test
-```
-
-Run project checks:
-
-```bash
-task check
-```
-
-## Demo
-
-A demo GIF showing the API in action:
-
-![Go CRUD API Demo](./docs/demo.gif)
-
-A YouTube demo can be added here later.
-
-## License
-
-This project is built for learning and educational purposes.
